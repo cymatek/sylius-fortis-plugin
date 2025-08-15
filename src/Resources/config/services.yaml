@@ -1,0 +1,33 @@
+services:
+  Vendor\FortisPlugin\FortisGatewayFactory:
+    public: true
+    tags: [ { name: payum.gateway_factory, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\ConvertPaymentAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\CaptureAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\AuthorizeAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\RefundAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\CancelAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Action\StatusAction:
+    tags: [ { name: payum.action, factory: fortis } ]
+
+  Vendor\FortisPlugin\Api\FortisSdkAdapter:
+    arguments:
+      $developerId: '%env(FORTIS_DEVELOPER_ID)%'
+      $userId: '%env(FORTIS_USER_ID)%'
+      $userApiKey: '%env(FORTIS_USER_API_KEY)%'
+      $locationId: '%env(string:FORTIS_LOCATION_ID)%'
+      $sandbox: '%env(bool:FORTIS_SANDBOX)%'
+      $timeout: 30
+
+  Vendor\FortisPlugin\Api\FortisApiInterface: '@Vendor\FortisPlugin\Api\FortisSdkAdapter'

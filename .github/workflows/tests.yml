@@ -1,0 +1,42 @@
+name: tests
+
+on: [push, pull_request]
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['8.1', '8.2', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - run: composer test
+
+  integration:
+    if: ${{ secrets.FORTIS_DEVELOPER_ID && secrets.FORTIS_USER_ID && secrets.FORTIS_USER_API_KEY && secrets.FORTIS_LOCATION_ID }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist
+      - name: Prepare env
+        run: |
+          echo "APP_ENV=test" >> .env
+          echo "FORTIS_SANDBOX=1" >> .env
+          echo "FORTIS_RUN_LIVE=1" >> .env.local
+          echo "FORTIS_DEVELOPER_ID=${{ secrets.FORTIS_DEVELOPER_ID }}" >> .env.local
+          echo "FORTIS_USER_ID=${{ secrets.FORTIS_USER_ID }}" >> .env.local
+          echo "FORTIS_USER_API_KEY=${{ secrets.FORTIS_USER_API_KEY }}" >> .env.local
+          echo "FORTIS_LOCATION_ID=${{ secrets.FORTIS_LOCATION_ID }}" >> .env.local
+          # optional: auto-mint a v1 token for tokenized test
+          php scripts/mint-fortis-token.php >> .env.local || true
+          sed -i 's/^/FORTIS_TEST_TOKEN=/' .env.local || true
+      - run: composer test:int
