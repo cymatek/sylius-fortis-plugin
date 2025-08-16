@@ -5,7 +5,7 @@ namespace Vendor\FortisPlugin;
 
 use Payum\Core\Bridge\Spl\ArrayObject as PayumArrayObject;
 use Payum\Core\GatewayFactory;
-use Vendor\FortisPlugin\Api\FortisSdkAdapter;
+use Vendor\FortisPlugin\Api\FortisSdkAdapter; // or FortisApi if that's what you use
 
 final class FortisGatewayFactory extends GatewayFactory
 {
@@ -17,24 +17,23 @@ final class FortisGatewayFactory extends GatewayFactory
             'payum.factory_title' => 'Fortis',
         ]);
 
-        // Default gateway options (persisted on GatewayConfig)
+        // Default gateway options
         $config->defaults([
             'payum.default_options' => [
                 'developer_id' => null,
                 'user_id'      => null,
                 'user_api_key' => null,
-                'location_id'  => null, // optional; you can override per-payment in details
+                'location_id'  => null, // optional
                 'sandbox'      => true,
                 'timeout'      => 30,
             ],
         ]);
 
-        // Apply defaults into the root config
         /** @var array<string,mixed> $defaults */
         $defaults = $config['payum.default_options'];
         $config->defaults($defaults);
 
-        // Build the API if not already provided
+        // Build API lazily
         if (false === $config->offsetExists('payum.api')) {
             $config['payum.api'] = static function (PayumArrayObject $config) {
                 return new FortisSdkAdapter(
@@ -48,12 +47,17 @@ final class FortisGatewayFactory extends GatewayFactory
             };
         }
 
-        // Template paths (optional)
+        // Register Twig paths ONLY if the folder exists
         $paths = $config['payum.paths'] ?? [];
         $paths = is_array($paths) ? $paths : (array) $paths;
-        $paths = array_replace([
-            'VendorFortisPlugin' => __DIR__ . '/Resources/views',
-        ], $paths);
+
+        $pluginViews = __DIR__ . '/Resources/views';
+        if (is_dir($pluginViews)) {
+            $paths = array_replace([
+                'VendorFortisPlugin' => $pluginViews,
+            ], $paths);
+        }
+
         $config['payum.paths'] = $paths;
     }
 }
