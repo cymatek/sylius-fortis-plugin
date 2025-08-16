@@ -1,5 +1,5 @@
 {
-  "name": "vendor/sylius-fortis-plugin",
+  "name": "cymatek/sylius-fortis-plugin",
   "type": "symfony-bundle",
   "description": "Sylius 2 Payum gateway for Fortis (SDK-integrated).",
   "license": "proprietary",
