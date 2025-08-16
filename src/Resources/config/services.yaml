@@ -32,3 +32,9 @@ services:
       $timeout: 30
 
   Vendor\FortisPlugin\Api\FortisApiInterface: '@Vendor\FortisPlugin\Api\FortisSdkAdapter'
+
+  Vendor\FortisPlugin\Form\Type\FortisGatewayConfigurationType:
+    tags:
+      # This makes "Fortis" appear in the Admin → Payment methods → Create dropdown
+      # `type` MUST match your factory name ("fortis"); `label` is what admins see.
+      - { name: sylius.gateway_configuration_type, type: fortis, label: Fortis }
